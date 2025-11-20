@@ -378,7 +378,7 @@ class CitySupportChat:
 # ===================== ДЕМО-ЗАПУСК =====================
 
 
-def demo_rag_classifier(client: OpenAI) -> None:
+def rag_classifier(client: OpenAI) -> None:
     print("\n=== DEMO 1: RAG-классификатор категорий тикета ===\n")
 
     classifier = RAGTicketClassifier(client, EXAMPLE_TICKETS)
@@ -420,7 +420,7 @@ def demo_ticket_dialog(client: OpenAI) -> None:
 def main():
     client = get_client()
 
-    demo_rag_classifier(client)
+    rag_classifier(client)
     demo_ticket_dialog(client)
 
 
