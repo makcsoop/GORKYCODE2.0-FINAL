@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- Начало кода 24gio AI Assistant -->
+<div id="ai-assistant-container">
+    <style>
+        #ai-assistant-container * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        #ai-assistant-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+        }
+        
+        #ai-assistant-toggle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: none;
+            transition: transform 0.3s ease;
+        }
+        
+        #ai-assistant-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        #ai-chat-window {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        #ai-chat-window.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .ai-header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .ai-logo {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .ai-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .ai-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .ai-chat-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .ai-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .ai-user-message {
+            align-self: flex-end;
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-bot-message {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .ai-input-area {
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .ai-input-field {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .ai-input-field:focus {
+            border-color: #667eea;
+        }
+        
+        .ai-send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .ai-send-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .ai-typing-indicator {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #666;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            font-style: italic;
+            display: none;
+        }
+        
+        .ai-footer {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 11px;
+        }
+    </style>
+
+    <button id="ai-assistant-toggle">AI</button>
+    
+    <div id="ai-chat-window">
+        <div class="ai-header">
+            <button class="ai-close-btn">&times;</button>
+            <div class="ai-logo">24gio</div>
+            <div class="ai-subtitle">AI Assistant</div>
+        </div>
+        
+        <div class="ai-chat-content" id="ai-chat-messages">
+            <div class="ai-message ai-bot-message">
+                Здравствуйте! Я ваш AI-помощник. Чем могу помочь?
+            </div>
+        </div>
+        
+        <div class="ai-typing-indicator" id="ai-typing">Бот печатает...</div>
+        
+        <div class="ai-input-area">
+            <input type="text" class="ai-input-field" id="ai-user-input" placeholder="Введите сообщение...">
+            <button class="ai-send-btn" id="ai-send-btn">Отпр</button>
+        </div>
+        
+        <div class="ai-footer">
+            24gio AI Assistant
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы интерфейса
+            const toggleBtn = document.getElementById('ai-assistant-toggle');
+            const chatWindow = document.getElementById('ai-chat-window');
+            const closeBtn = document.querySelector('.ai-close-btn');
+            const userInput = document.getElementById('ai-user-input');
+            const sendBtn = document.getElementById('ai-send-btn');
+            const chatMessages = document.getElementById('ai-chat-messages');
+            const typingIndicator = document.getElementById('ai-typing');
+            
+            // Открытие/закрытие чата
+            toggleBtn.addEventListener('click', function() {
+                chatWindow.classList.toggle('active');
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                chatWindow.classList.remove('active');
+            });
+            
+            // Отправка сообщения
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                // Добавляем сообщение пользователя
+                addMessage(message, 'user');
+                userInput.value = '';
+                
+                // Показываем индикатор набора текста
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+                
+                // Имитируем задержку ответа бота
+                setTimeout(function() {
+                    typingIndicator.style.display = 'none';
+                    const botResponse = generateBotResponse(message);
+                    addMessage(botResponse, 'bot');
+                }, 1000 + Math.random() * 1000);
+            }
+            
+            // Обработчики отправки
+            sendBtn.addEventListener('click', sendMessage);
+            
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Добавление сообщения в чат
+            function addMessage(text, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('ai-message');
+                messageElement.classList.add(sender === 'user' ? 'ai-user-message' : 'ai-bot-message');
+                messageElement.textContent = text;
+                
+                chatMessages.appendChild(messageElement);
+                scrollToBottom();
+            }
+            
+            // Прокрутка к последнему сообщению
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Логика ответов бота
+            function generateBotResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Простые правила для ответов
+                if (lowerMessage.includes('привет') || lowerMessage.includes('здравствуй')) {
+                    return "Здравствуйте! Рад вас видеть. Чем могу помочь?";
+                } else if (lowerMessage.includes('как дела')) {
+                    return "У меня всё отлично! Готов помочь вам с любыми вопросами.";
+                } else if (lowerMessage.includes('помощь') || lowerMessage.includes('help')) {
+                    return "Я могу ответить на ваши вопросы, предоставить информацию или просто пообщаться.";
+                } else if (lowerMessage.includes('время')) {
+                    return "Текущее время: " + new Date().toLocaleTimeString();
+                } else if (lowerMessage.includes('дата')) {
+                    return "Сегодня: " + new Date().toLocaleDateString('ru-RU');
+                } else if (lowerMessage.includes('спасибо')) {
+                    return "Пожалуйста! Обращайтесь ещё.";
+                } else if (lowerMessage.includes('пока') || lowerMessage.includes('до свидания')) {
+                    return "До свидания! Буду рад помочь снова.";
+                } else if (lowerMessage.includes('что ты умеешь')) {
+                    return "Я могу отвечать на простые вопросы, сообщать время и дату, поддерживать беседу.";
+                } else {
+                    const randomResponses = [
+                        "Интересный вопрос! К сожалению, мои возможности пока ограничены.",
+                        "Спасибо за ваш вопрос! Я ещё учусь и не могу ответить на всё.",
+                        "Попробуйте задать вопрос по-другому или спросите о чём-то другом.",
+                        "Извините, я не совсем понимаю ваш вопрос. Можете переформулировать?",
+                        "На данный момент я могу ответить только на простые вопросы."
+                    ];
+                    return randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                }
+            }
+            
+            // Закрытие чата при клике вне его области
+            document.addEventListener('click', function(e) {
+                if (!chatWindow.contains(e.target) && e.target !== toggleBtn) {
+                    chatWindow.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</div>
+<!-- Конец кода 24gio AI Assistant -->
+</body>
+</html>
