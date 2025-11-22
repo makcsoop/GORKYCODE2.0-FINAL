@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Список квестов</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Press Start 2P", cursive;
+        background: white;
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+        max-width: 1760px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 20px;
+        margin-bottom: 30px;
+        color: #333;
+      }
+
+      .quests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .quest-card {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        background: white;
+        text-align: center;
+        transition: all 0.2s ease;
+      }
+
+      .quest-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .quest-card h2 {
+        font-size: 12px;
+        margin-bottom: 12px;
+        color: #333;
+        line-height: 1.4;
+      }
+
+      .quest-card p {
+        font-size: 8px;
+        margin: 12px 0;
+        color: #666;
+        line-height: 1.5;
+        font-family: Arial, sans-serif;
+      }
+
+      .quest-card .points {
+        font-size: 12px;
+        color: #ff6b6b;
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .quest-card .points::before {
+        content: "💰";
+        font-size: 16px;
+      }
+
+      .quest-card .status {
+        font-size: 7px;
+        margin: 12px 0;
+        padding: 6px 12px;
+        border-radius: 15px;
+        display: inline-block;
+      }
+
+      .quest-card .status.taken {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .quest-card .status.completed {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .quest-card .status.available {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      a.button {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        margin: 12px 0 0;
+        font-family: "Press Start 2P", cursive;
+        font-size: 9px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+
+      a.button:hover {
+        background: #5568d3;
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 30px;
+      }
+
+      .back-link a {
+        color: #667eea;
+        font-size: 9px;
+        text-decoration: none;
+      }
+
+      .back-link a:hover {
+        text-decoration: underline;
+      }
+
+      .flash-messages {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .flash-messages div {
+        font-size: 9px;
+        padding: 12px 18px;
+        border-radius: 5px;
+        margin: 8px 0;
+        display: inline-block;
+      }
+
+      .flash-messages .error {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .flash-messages .success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .flash-messages .info {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      @media (max-width: 768px) {
+        .quests-grid {
+          grid-template-columns: 1fr;
+        }
+
+        h1 {
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="{{ url_for('static', filename='img/heder.png') }}" alt="Header" style="max-width: 100%; height: auto;" />
+      </div>
+      <h1>СПИСОК КВЕСТОВ</h1>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} 
+        {% if messages %}
+          <div class="flash-messages">
+            {% for category, message in messages %}
+              <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %} 
+      {% endwith %}
+
+      <div class="quests-grid">
+        {% for quest in quests %}
+          <div class="quest-card">
+            <h2>{{ quest.title }}</h2>
+            <p>
+              {{ quest.description[:100] }}{% if quest.description|length > 100 %}...{% endif %}
+            </p>
+            <div class="points">{{ quest.points }} монет</div>
+            <div
+              class="status {% if quest.id in taken_quest_ids %}taken{% elif quest.status == 'выполнена' %}completed{% else %}available{% endif %}"
+            >
+              {{ quest.get_status_display() }}
+            </div>
+            <a
+              href="{{ url_for('quest_detail', quest_id=quest.id) }}"
+              class="button"
+            >
+              {% if quest.id in taken_quest_ids %} 
+                ПРОСМОТР 
+              {% else %} 
+                ПОДРОБНЕЕ
+              {% endif %}
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="back-link">
+        <a href="{{ url_for('dashboard') }}">← НАЗАД В ПРОФИЛЬ</a>
+      </div>
+    </div>
+  </body>
+</html>

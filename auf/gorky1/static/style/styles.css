@@ -1,0 +1,88 @@
+/* Глобальное ограничение ширины для всех страниц */
+body {
+  max-width: 1760px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.log {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.loh {
+  width: 1760px;
+  height: auto;
+  display: block;
+}
+
+.ggwp {
+  top: 930px;
+  position: absolute;
+  width: 1760px;
+  height: auto;
+  z-index: 10;
+}
+
+.oak {
+  position: absolute;
+  z-index: 100;
+  top: 1820px;
+  width: 600px;
+  height: 580px;
+  left: 90px;
+  display: block;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.duhota {
+  width: 330px;
+  height: 130px;
+  position: absolute;
+  z-index: 100;
+  top: 1490px;
+  right: 240px;
+  display: block; /* Изменил на block чтобы кнопка была видима */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none; /* Убираем подчеркивание ссылки */
+}
+
+.puki {
+  right: 700px;
+  top: 500px;
+  position: absolute;
+}
+
+/* Прозрачная кнопка поверх картинки */
+.invisible-auth-btn {
+  position: absolute;
+  right: 700px;
+  top: 500px; /* под вашу картинку */
+  width: 330px; /* Размеры области клика */
+  height: 130px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.invisible-auth-btn:hover {
+  background: rgba(255, 255, 255, 0.1); /* Легкое подсвечивание при наведении */
+}
+/* Убираем любые стили при наведении */
+.duhota:hover,
+.duhota:focus,
+.duhota:active {
+  background: transparent;
+  border: none;
+  outline: none;
+}

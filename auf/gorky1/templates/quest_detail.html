@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style/styles.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <title>{{ quest.title }}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f2f5f9;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        max-width: 1760px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .quest-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        grid-template-rows: auto auto 1fr auto;
+        grid-template-areas:
+          "header header header"
+          "bg-left bg-center bg-right"
+          "content-left content-center content-right"
+          "footer-left footer-center footer-right";
+        min-height: 100vh;
+        position: relative;
+      }
+
+      .header-section {
+        grid-area: header;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+        padding: 20px 0;
+      }
+
+      .header-section img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .bg-left {
+        grid-area: bg-left;
+        position: relative;
+        z-index: 1;
+      }
+
+      .bg-center {
+        grid-area: bg-center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .bg-right {
+        grid-area: bg-right;
+        position: relative;
+        z-index: 1;
+      }
+
+      .bg-left img,
+      .bg-center img,
+      .bg-right img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .content-left {
+        grid-area: content-left;
+        position: relative;
+        z-index: 5;
+        padding: 20px;
+      }
+
+      .content-center {
+        grid-area: content-center;
+        position: relative;
+        z-index: 5;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto 1fr;
+        gap: 20px;
+      }
+
+      .content-right {
+        grid-area: content-right;
+        position: relative;
+        z-index: 5;
+        padding: 20px;
+      }
+
+      .quest-title {
+        grid-column: 1 / -1;
+        font-family: "Press Start 2P", cursive;
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 20px;
+        padding: 10px;
+      }
+
+      .quest-image {
+        grid-column: 1;
+        position: relative;
+      }
+
+      .quest-image img {
+        width: 100%;
+        height: auto;
+        border: 3px solid black;
+      }
+
+      .quest-description {
+        grid-column: 2;
+        font-family: "Press Start 2P", cursive;
+        font-size: 10px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 3px solid black;
+        overflow-y: auto;
+        max-height: 400px;
+      }
+
+      .quest-description strong {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 12px;
+      }
+
+      .reward-section {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 20px;
+        align-items: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 3px solid black;
+      }
+
+      .reward-info {
+        font-family: "Press Start 2P", cursive;
+        font-size: 12px;
+      }
+
+      .reward-info p {
+        margin-bottom: 10px;
+      }
+
+      .reward-values {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .reward-values span {
+        font-family: "Press Start 2P", cursive;
+        font-size: 14px;
+      }
+
+      .accept-button-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+      }
+
+      .accept-button-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        cursor: pointer;
+        z-index: 10;
+      }
+
+      .form-section {
+        grid-column: 1 / -1;
+        background: white;
+        border: 4px solid black;
+        padding: 30px;
+        margin-top: 20px;
+        max-width: 100%;
+      }
+
+      .form-section.hidden {
+        display: none;
+      }
+
+      .form-section.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .form-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+      }
+
+      .form-overlay.active {
+        display: block;
+      }
+
+      .form-section.active {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 101;
+        max-width: 600px;
+        width: 90%;
+        grid-column: unset;
+      }
+
+      /* Форма отчета должна быть видна на странице, не как всплывающее окно */
+      #reportForm:not(.active) {
+        position: relative;
+        transform: none;
+        top: auto;
+        left: auto;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 10px;
+        margin-bottom: 8px;
+        font-family: "Press Start 2P", cursive;
+      }
+
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid black;
+        font-family: Arial, sans-serif;
+      }
+
+      .file-upload-button {
+        background: white;
+        border: 2px solid black;
+        padding: 10px 20px;
+        font-family: "Press Start 2P", cursive;
+        font-size: 10px;
+        cursor: pointer;
+        display: inline-block;
+      }
+
+      .submit-button {
+        background: #4a90e2;
+        border: 3px solid black;
+        color: white;
+        padding: 15px 40px;
+        font-family: "Press Start 2P", cursive;
+        font-size: 12px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      @media (max-width: 1024px) {
+        .quest-container {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "header"
+            "content-center"
+            "content-left"
+            "content-right";
+        }
+
+        .content-center {
+          grid-template-columns: 1fr;
+        }
+
+        .quest-image {
+          grid-column: 1;
+        }
+
+        .quest-description {
+          grid-column: 1;
+        }
+      }
+    </style>
+    <div class="header-section">
+      <img
+        src="{{ url_for('static', filename='img/heder.png') }}"
+        alt="Header"
+        style="position: absolute; top: 0px"
+      />
+    </div>
+  </head>
+  <body>
+    <div class="quest-container">
+      <!-- Header Section -->
+
+      <!-- Background Images -->
+
+      <div class="bg-right"></div>
+
+      <!-- Content Left -->
+      <div class="content-left"></div>
+
+      <!-- Content Center -->
+      <div class="content-center">
+        <h1 class="quest-title" id="item1">{{ quest.title }}</h1>
+
+        <div class="quest-image" id="item6">
+          {% if quest.image_path %} {% if quest.image_path.startswith('img/') %}
+          <img src="/{{ quest.image_path }}" alt="Карта квеста" />
+          {% elif quest.image_path.startswith('static/') %}
+          <img
+            src="{{ url_for('static', filename=quest.image_path.replace('static/', '')) }}"
+            alt="Карта квеста"
+          />
+          {% else %}
+          <img src="/img/{{ quest.image_path }}" alt="Карта квеста" />
+          {% endif %} {% else %}
+          <img
+            src="{{ url_for('static', filename='img/Frame 1.png') }}"
+            alt=""
+          />
+          {% endif %}
+        </div>
+
+        <div class="quest-description description-text">
+          <strong>Описание</strong><br />
+          {{ quest.description }}
+        </div>
+
+        <div class="reward-section">
+          <div class="reward-info">
+            <p>награда:</p>
+          </div>
+          <div class="reward-values">
+            <span id="item3">{{ quest.points }} LP</span>
+            <span id="item4">{{ quest.points }} XP</span>
+          </div>
+          {% if quest.status != 'в исполнении' and quest.status != 'выполнена'
+          %}
+          <div class="accept-button-container">
+            <img
+              src="{{ url_for('static', filename='img/Frame 1.png') }}"
+              alt=""
+              id="item5"
+            />
+            <div class="accept-button-overlay" onclick="showForm()"></div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Форма для принятия квеста (всплывающее окно) -->
+        {% if not is_taken %}
+        <div id="formOverlay" class="form-overlay" onclick="hideForm()"></div>
+        <div id="acceptForm" class="form-section hidden">
+          <h2
+            style="
+              text-align: center;
+              font-family: 'Press Start 2P', cursive;
+              margin-bottom: 20px;
+            "
+          >
+            Принять квест?
+          </h2>
+          <p
+            style="
+              text-align: center;
+              font-family: 'Press Start 2P', cursive;
+              font-size: 10px;
+              margin-bottom: 30px;
+            "
+          >
+            Вы получите {{ quest.points }} коинов за выполнение этого квеста
+          </p>
+          <form
+            method="POST"
+            action="{{ url_for('take_quest', quest_id=quest.id) }}"
+            style="text-align: center"
+          >
+            <button type="submit" class="submit-button">ПРИНЯТЬ</button>
+            <button
+              type="button"
+              onclick="hideForm()"
+              style="
+                background: #ccc;
+                border: 3px solid black;
+                padding: 15px 40px;
+                font-family: 'Press Start 2P', cursive;
+                font-size: 12px;
+                cursor: pointer;
+                margin-left: 10px;
+              "
+            >
+              ОТМЕНА
+            </button>
+          </form>
+        </div>
+        {% endif %}
+
+        <!-- Форма отчета (показывается прямо на странице когда квест в исполнении) -->
+        {% if is_taken and form and quest.status == 'в исполнении' %}
+        <div id="reportForm" class="form-section">
+          <h2
+            style="
+              text-align: center;
+              font-family: 'Press Start 2P', cursive;
+              margin-bottom: 20px;
+            "
+          >
+            Форма
+          </h2>
+          <form
+            method="POST"
+            action="{{ url_for('submit_quest_report', quest_id=quest.id) }}"
+            enctype="multipart/form-data"
+          >
+            {{ form.hidden_tag() }} {{ form.quest_id(value=quest.id) }}
+
+            <div class="form-group">
+              <label class="required">Проблема решена?</label>
+              {{ form.is_completed() }} {% if form.is_completed.errors %}
+              <div style="color: red; font-size: 8px">
+                {% for error in form.is_completed.errors %} {{ error }} {%
+                endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label class="required">Прикрепите фотографии/видео</label>
+              <label for="photo" class="file-upload-button">ПРИКРЕПИТЬ</label>
+              {{ form.photo(id="photo", style="display: none;") }}
+              <div style="font-size: 8px; margin-top: 5px">
+                Прикрепите файлы весом не более 512МБ
+              </div>
+              {% if form.photo.errors %}
+              <div style="color: red; font-size: 8px">
+                {% for error in form.photo.errors %} {{ error }} {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label>Добавьте описание (необязательно)</label>
+              {{ form.comment(placeholder="Введите") }} {% if
+              form.comment.errors %}
+              <div style="color: red; font-size: 8px">
+                {% for error in form.comment.errors %} {{ error }} {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div style="text-align: center">
+              {{ form.submit(class="submit-button") }}
+            </div>
+          </form>
+        </div>
+        {% elif is_taken and quest.status == 'выполнена' %}
+        <!-- Показ формы в режиме только чтения если квест выполнен -->
+        <div id="reportForm" class="form-section disabled">
+          <h2
+            style="
+              text-align: center;
+              font-family: 'Press Start 2P', cursive;
+              margin-bottom: 20px;
+            "
+          >
+            Квест выполнен
+          </h2>
+          <p
+            style="
+              text-align: center;
+              font-family: 'Press Start 2P', cursive;
+              font-size: 10px;
+            "
+          >
+            Этот квест уже выполнен. Форма недоступна для редактирования.
+          </p>
+          {% if report and report.comment and report.comment.strip() != '' %}
+          <div
+            style="
+              font-family: Arial, sans-serif;
+              font-size: 12px;
+              margin-top: 20px;
+            "
+          >
+            <p>
+              <strong>Статус:</strong> {% if report.is_completed %}✅
+              Выполнено{% else %}❌ Не выполнено{% endif %}
+            </p>
+            <p><strong>Комментарий:</strong> {{ report.comment }}</p>
+            {% if report.photo_path %}
+            <p><strong>Фото:</strong></p>
+            <div style="margin-top: 10px">
+              {% if report.photo_path.startswith('static/') %}
+              <img
+                src="{{ url_for('static', filename=report.photo_path.replace('static/', '')) }}"
+                alt="Фото отчета"
+                style="max-width: 300px; border: 2px solid black"
+              />
+              {% else %}
+              <img
+                src="{{ url_for('static', filename=report.photo_path) }}"
+                alt="Фото отчета"
+                style="max-width: 300px; border: 2px solid black"
+              />
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Content Right -->
+      <div class="content-right"></div>
+    </div>
+
+    <script>
+      function showForm() {
+        var formOverlay = document.getElementById("formOverlay");
+        var acceptForm = document.getElementById("acceptForm");
+
+        if (formOverlay) {
+          formOverlay.classList.add("active");
+        }
+        if (acceptForm) {
+          acceptForm.classList.remove("hidden");
+          acceptForm.classList.add("active");
+        }
+      }
+
+      function hideForm() {
+        var formOverlay = document.getElementById("formOverlay");
+        var acceptForm = document.getElementById("acceptForm");
+
+        if (formOverlay) {
+          formOverlay.classList.remove("active");
+        }
+        if (acceptForm) {
+          acceptForm.classList.remove("active");
+          acceptForm.classList.add("hidden");
+        }
+      }
+
+      // Обработка кнопки загрузки файла
+      document.addEventListener("DOMContentLoaded", function () {
+        const fileInput = document.getElementById("photo");
+        const fileButton = document.querySelector(".file-upload-button");
+
+        if (fileButton && fileInput) {
+          fileButton.addEventListener("click", function (e) {
+            e.preventDefault();
+            fileInput.click();
+          });
+
+          fileInput.addEventListener("change", function () {
+            if (this.files && this.files.length > 0) {
+              fileButton.textContent =
+                "ВЫБРАНО: " + this.files.length + " файл(ов)";
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style/styles.css') }}"
+    />
+    <title>Главная страница</title>
+  </head>
+  <body>
+    <div class="log">
+      <img
+        src="{{ url_for('static', filename='img/Frame 23.png') }}"
+        class="loh"
+      />
+
+      <!-- Прозрачная кнопка поверх определенной области картинки -->
+      <a href="{{ url_for('login_form') }}" class="invisible-auth-btn"
+        ><img
+          src="{{ url_for('static', filename='img/Frame 1.png') }}"
+          alt="puki"
+      /></a>
+
+      <a href="/form" class="oak"></a>
+    </div>
+  </body>
+</html>
