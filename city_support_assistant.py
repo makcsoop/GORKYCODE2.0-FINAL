@@ -11,7 +11,7 @@ from openai import OpenAI
 
 # ЖЁСТКО ЗАШИТЫЙ КЛЮЧ ДЛЯ ХАКАТОНА (БЕЗ ENV)
 # При необходимости поменяй на свой.
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = ""
 
 CHAT_MODEL = "gpt-4o-mini"
 EMBED_MODEL = "text-embedding-3-small"

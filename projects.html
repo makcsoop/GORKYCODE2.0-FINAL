@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smartopolis - Городские проекты</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <span class="logo-text">Smartopolis</span>
+            <button class="hamburger-menu" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <div class="header-right">
+            <div class="notification-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M10 2C8.34 2 7 3.34 7 5V8.59L4.7 10.89C4.31 11.28 4 11.88 4 12.41V16C4 16.55 4.45 17 5 17H15C15.55 17 16 16.55 16 16V12.41C16 11.88 15.69 11.28 15.3 10.89L13 8.59V5C13 3.34 11.66 2 10 2Z"
+                        fill="white" />
+                </svg>
+                <span class="notification-badge">1</span>
+            </div>
+            <button class="refresh-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M10 3V1M10 1L7 4M10 1L13 4M2 10C2 14.418 5.582 18 10 18C14.418 18 18 14.418 18 10M18 10V12M18 10L15 13M18 10L15 7"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+            <div class="header-logo">
+                <span class="header-text">Аналитический центр города</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-emblem"></div>
+                </div>
+                <div class="sidebar-title">
+                    <div>Аналитический центр</div>
+                    <div class="online-status">• Онлайн</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-label">Меню</div>
+                <ul class="nav-list">
+                    <li class="nav-item active">
+                        <a href="projects.html" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M2 6L10 1L18 6V16C18 16.5304 17.7893 17.0391 17.4142 17.4142C17.0391 17.7893 16.5304 18 16 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V6Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M7 18V10H13V18" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>Городские проекты</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2L12.09 7.26L18 8.27L14 12.14L14.91 18.02L10 15.77L5.09 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z"
+                                    fill="white" />
+                            </svg>
+                            <span>Мой рейтинг</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Городские проекты</h1>
+            </div>
+            <div class="content-placeholder">
+                <p>Содержимое страницы "Городские проекты"</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

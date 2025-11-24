@@ -69,3 +69,34 @@ def get_name_street(x, y):
 def change_date(date):
     n = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S.%f").strftime('%H:%M %d.%m.%Y')
     return n
+
+
+def get_firts_ticket():
+    base = sqlite3.connect('db/base.db')
+    cursor = base.cursor()
+    return cursor.execute("""SELECT * FROM tickets WHERE status = 'new'""").fetchall()
+
+def get_close_tickets():
+    base = sqlite3.connect('db/base.db')
+    cursor = base.cursor()
+    return cursor.execute("""SELECT * FROM tickets WHERE status = 'closed'""").fetchall()
+
+
+def parse_jsons(data):
+    final = []
+    for i in data:
+        print(i)
+        final.append({
+            "id": i[0],
+            "address": i[1],
+            "status": i[2],
+            "created_at": i[3],
+            "description": i[4] if i[4] else "",
+            "distric": i[5],
+            "resolution": i[6] if len(i) > 6 else None,
+            "execution_date": i[7] if len(i) > 7 else None,
+            "executor_id": i[8] if len(i) > 8 else None,
+            "final_status_at": i[9] if len(i) > 9 else None,
+            "complaint_id": i[10] if len(i) > 10 else None
+        })
+    return final

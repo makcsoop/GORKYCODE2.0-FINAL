@@ -1,14 +1,20 @@
-from flask import Flask, request, session
+from flask import Flask, request, session, jsonify, render_template, send_from_directory
 from scripts import *
 import sqlalchemy
 import requests
 import urllib.request
 from flask_login import LoginManager, login_user
 from data import db_session
-from data.users import User, Dialog, Message, Settings, Newsfeed, Friends, Communities, Feedcommunities, ProblemPoints, Parking, Role, Image, Wait_Communities, Logging, TypeLog, ParkZone
+from data.users import Tickets, PlanTime, Ranks, HistoryRanks
 from data.db_session import global_init, SqlAlchemyBase
-import datetime
+from datetime import datetime, timedelta
 from city_support_assistant import rag_classifier, get_client
+import promise_analyzer
+import bureaucratic_analyzer
+import logging
+import os
+import json
+
 
 
 # яндекс ключ к картам  f9727fb1-f338-4780-b4c4-d639d0a62107
@@ -16,11 +22,12 @@ from city_support_assistant import rag_classifier, get_client
 
 #http://localhost:8000/authorization?login=user&password=1234
 
-test = {"login": "user", "password" : "1234", "password2": "1234", "name": "", "email":""}
-ENTRANCE = False
-NAME_SERVER = "http://localhost:8000"
-ID = -1
-app = Flask(__name__)
+app = Flask(__name__, 
+            template_folder='templates',
+            static_folder='static')
+
+# CORS настроен через after_request декоратор ниже
+
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 login_manager = LoginManager()
@@ -30,458 +37,101 @@ db_session.global_init('db/base.db')
 
 @login_manager.user_loader
 def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(User).get(user_id)
+    # TODO: Добавить модель User если нужна авторизация
+    # db_sess = db_session.create_session()
+    # return db_sess.query(User).get(user_id)
+    return None
 
 db_sess = db_session.create_session()
 
-@app.route('/authorization', methods=['GET'])
-def login():
-    session['login'] = ''
-    session['role'] = 0
-    session['id'] = -1
-    args = request.args
-    login = args.get('login')
-    password = args.get('password')
-    #db_sess = db_session.create_session()
-    login_cur = db_sess.query(User).filter(User.login == str(login), User.activity == 1).first()
-    if len(login) and len(password):
-        login_cur = db_sess.query(User).filter(User.login == login, User.password == password).first()
-        if login_cur:
-            ID = get_id(login)
-            session['id'] = ID
-            session['login'] = login
-            print(login_cur)
-            # session['role'] = get_level_user(login)
-            log = Logging()
-            log.id_log = 1
-            log.notes = f"log in user id = {ID}"
-            log.data = datetime.datetime.now()
-            db_sess.add(log)
-            db_sess.commit()
-            return {"flag": 1}
-        else:
-            log = Logging()
-            log.id_log = 1
-            log.notes = f"Not found user login = {login}, password = {password}"
-            log.data = datetime.datetime.now()
-            db_sess.add(log)
-            db_sess.commit()
-            return {"flag": 2}
-    else:
-        log = Logging()
-        log.id_log = 1
-        log.notes = f"not all fields are filled in"
-        log.data = datetime.datetime.now()
-        db_sess.add(log)
-        db_sess.commit()
-        return {"flag": 0}
-    
-    
-@app.route("/registration", methods=['GET'])
-def registration():
-    args = request.args
-    login = args.get('login')
-    name = args.get('name')
-    email = args.get('email')
-    password = args.get('password')
-    #db_sess = db_session.create_session()
-    if not (isvalid_login(login)):
-        log = Logging()
-        log.id_log = 1
-        log.notes = f"not valid login"
-        log.data = datetime.datetime.now()
-        db_sess.add(log)
-        db_sess.commit()
-        return {"flag": 0}
-    if  isvalid_value(login, password, name):
-        login_cur = db_sess.query(User).filter(User.login == login).first()
-        if login_cur:
-            print(login_cur)
-            return {"flag": 0}
-        user = User()
-        user.name = name
-        user.login = login
-        user.email = email
-        user.password = password
-        user.role = 1
-        db_sess.add(user)
-        db_sess.commit()
-        log = Logging()
-        log.id_log = 1
-        log.notes = f"New user reg login = {login}, password = {password}"
-        log.data = datetime.datetime.now()
-        db_sess.add(log)
-        db_sess.commit()
-        return {"flag": 1}
-    else:
-        log = Logging()
-        log.id_log = 1
-        log.notes = f"not all fields are filled in"
-        log.data = datetime.datetime.now()
-        db_sess.add(log)
-        db_sess.commit()
-        return {"flag": 3} #не все поля заполнины
-    
 
-@app.route("/map", methods=['GET'])
-def map():
-    pass
-
-@app.route("/newsfeed", methods=['GET'])
-def newsfeed():
-    # НУЖНО ВЫБРАТЬ КАК ВЫДАВАТЬ ПОСТЫ ЛИБО ПО ПОДПИСКАМ ЛИБО ВСЕ ПУБЛИКАЦИИ ЧЕЛОВ
-
-    if True:
-        #http://localhost:8000/newsfeed
-        login_cur = db_sess.query(Feedcommunities)
-        final = []
-        for i in login_cur:
-            info_user = db_sess.query(Communities).filter(Communities.id == i.id_communities).first()
-            name_ava = db_sess.query(Image).filter(Image.id == info_user.id_image).first().url
-            foto_post = db_sess.query(Image).filter(Image.id == i.id_image).first().url
-
-            final.append({"information":  {"text":  i.text, "date": change_date(i.date), "like": i.like, "name" : info_user.name, "x": i.x, "y": i.y, "address": i.address, "url": str(foto_post) if len(foto_post) != 0 else "", "avatar": str(name_ava) if len(name_ava) != 0 else ""}})
-            log = Logging()
-            log.id_log = 1
-            log.notes = f"Complite get all feednews"
-            log.data = datetime.now()
-            db_sess.add(log)
-            db_sess.commit()
-        # final = sorted(final, key=lambda x: x[3])
-        return {"flag": 1, "info": final}
-    else:
-        return {"flag": 0}
-
-@app.route("/messenger", methods=['GET'])
-def messenger():
-    ID = session.get("id")
-    print(ID)
-    if ID != -1 and str(ID) != 'None':
-        #http://localhost:8000/messenger
-        search = "%{}%".format(ID)
-        #db_sess = db_session.create_session()
-        final = []
-        login_cur = db_sess.query(Dialog).filter(Dialog.id_users.like(search))
-        for i in login_cur:
-            users = str(i.id_users).replace(str(ID), '').replace(',', "").split()[0]
-            name = db_sess.query(User).filter(User.id == users).first().name
-            info = db_sess.query(Message).filter(Message.id_dialog == i.id)
-            texts = sorted([[j.id_user, j.text, j.data] for j in info], key=lambda x:x[2], reverse=True)
-
-            # mes = [[j.id_user, j.text, j.data] for j in info]
-            
-            final.append({"name": name, "last_text": [j[1] for id, j in enumerate(texts) if id == 0]})
-            log = Logging()
-            log.id_log = 1
-            log.notes = f"Complite get all dialogs"
-            log.data = datetime.datetime.now()
-            db_sess.add(log)
-            db_sess.commit()
-        return {"flag": 1, "dialog": final, "search": search, "ID" : ID}
-    else:   
-        log = Logging()
-        log.id_log = 1
-        log.notes = f"User is not authorized"
-        log.data = datetime.datetime.now()
-        db_sess.add(log)
-        db_sess.commit()
-        return {"flag": 0}
-
-@app.route("/correspondence", methods=['POST', 'GET'])
-def correspondence():
-    #http://localhost:8000/correspondence?dialog=1
-    ID = session.get("id")
-    
-    if request.method == 'POST' and ID != -1 and str(ID) != 'None':
-        #http://localhost:8000/correspondence?dialog=1&text=привет
-        args = request.args
-        dialog = args.get("dialog")
-        text = args.get('text')
-        #image = args.get("image") 
-        #date = args.get("date")
-        add_message = Message()
-        add_message.id_dialog = int(dialog)
-        add_message.id_user = int(ID)
-        add_message.text = text
-        add_message.data = datetime.datetime.now().date()
-        #.strftime("%Y-%m-%d")
-        db_sess.add(add_message)
-        db_sess.commit()
-        log = Logging()
-        log.id_log = 1
-        log.notes = f"New messendg id_dialog = {dialog}"
-        log.data = datetime.datetime.now()
-        db_sess.add(log)
-        db_sess.commit()
-        return {"flag": 1}
-
-    elif request.method == 'GET':
-        #### СОРТИРОВКУ СДЕЛАТЬ ПО ВРЕМЕНИ
-        if ID != -1 and str(ID) != 'None':
-            args = request.args
-            id_dialog = args.get('dialog')
-            #db_sess = db_session.create_session()
-            login_cur = db_sess.query(Message).filter(Message.id_dialog == id_dialog)
-            final = [{"who_user": 1 if i.id_user == ID else 0, "text": i.text, "data": i.data} for i in login_cur]
-            #final = sorted(final, key=lambda x: x[2])
-            log = Logging()
-            log.id_log = 1
-            log.notes = f"Get all correspondence id_dialog = {log.id_log}"
-            log.data = datetime.datetime.now()
-            db_sess.add(log)
-            db_sess.commit()
-            return {"flag": 1, "info": final}
-
-        else:
-            log = Logging()
-            log.id_log = 4
-            log.notes = f"Error id_dialog = {log.id_log}"
-            log.data = datetime.datetime.now()
-            db_sess.add(log)
-            db_sess.commit()
-            return {"flag": 0, "ID": ID}
-    log = Logging()
-    log.id_log = 4
-    log.notes = f"Error id_dialog = {log.id_log}"
-    log.data = datetime.datetime.now()
-    db_sess.add(log)
-    db_sess.commit()
-    return {"flag": 0, "ID": ID}
-
-@app.route("/other", methods=['GET'])
-def other():
-    if ID != -1 and str(ID) != 'None':
-         pass
-    else:
-        return {"flag": 0}
-
-@app.route("/profile", methods=['GET'])
-def profile():
-    ID = session.get("id")
-    if ID != -1 and str(ID) != 'None':
-        #db_sess = db_session.create_session()
-        login_cur = db_sess.query(User).filter(User.id == ID).first()
-        log = Logging()
-        log.id_log = 4
-        log.notes = f"Get info profile id = {ID}"
-        log.data = datetime.datetime.now()
-        db_sess.add(log)
-        db_sess.commit()
-        return {"flag": 1, "name": login_cur.name, "login": login_cur.login, "email": login_cur.email} 
-    else:
-        return {"flag": 0}
-
-@app.route("/friends", methods=['GET'])
-def friends():
-    #http://localhost:8000/friends
-    ID = session.get("id")
-    if ID != -1 and str(ID) != 'None':
-        search = "%{}%".format(ID)
-        login_cur = db_sess.query(Friends).filter(Friends.id_users.like(search))
-        final = []
-        for i in login_cur:
-            users = str(i.id_users).replace(str(ID), '').replace(',', "").split()
-            print(users)
-            info = db_sess.query(User).filter(User.id == int(users[0])).first()
-            final.append([info.name])
-        final.sort()
-        return {"flag": 1, "info": final}
-    else:
-        return {"flag": 0}
-
-@app.route("/communities",methods=['POST', 'GET'])
-def communities():
-    ID = session.get("id")
-    if ID != -1 and str(ID) != 'None':
-        #http://localhost:8000/communities
-        login_cur = db_sess.query(Communities).all()
-        final = [i.name for i in login_cur]
-        return {"flag": 1, "info": final}
-    else:
-        return {"flag": 0}
-    
-
-@app.route("/feedcommunities",methods=['POST', 'GET'])
-def feedcommunities():
-    ID = session.get("id")
-    if ID != -1 and str(ID) != 'None':
-        #http://localhost:8000/feedcommunities?communities=1
-        final = []
-        args = request.args
-        id_communities = args.get('communities')
-        login_cur = db_sess.query(Feedcommunities).filter(Feedcommunities.id_communities == id_communities)
-        #print(login_cur)
-        for i in login_cur:
-            name = db_sess.query(Communities).filter(Communities.id == i.id_communities).first().name
-            final.append({"name": name, "text": i.text, "like": i.like, "date": i.date, "image": i.image})
-    
-        return {"flag": 1, "info": final}
-    else:
-        return {"flag": 0}
-
-
-@app.route("/settings", methods=['GET', 'POST'])
-def settings():
-    ### сделать добавление настроек у нового поьзователя
-    ID = session.get("id")
-    args = request.args
-    exit = args.get('exit')
-    theme = args.get('theme')
-    vision = args.get('vision')
-    if request.method == 'POST' and ID != -1 and str(ID) != 'None':
-        #http://localhost:8000/settings?exit=1&theme=1&vision=1
-        
-        if bool(exit):
-            session['id'] = -1
-            return {"flag": 1, "notes": "вышел из аккунта"} 
-        else:
-            login_cur = db_sess.query(Settings).filter(Settings.id_user == ID).first()
-            login_cur.theme = theme
-            login_cur.vision = vision
-            db_sess.commit()
-            return {"flag": 1, "notes": "поменял настройки"}
-    elif request.method == 'GET':
-        if ID != -1 and str(ID) != 'None':
-            login_cur = db_sess.query(Settings).filter(Settings.id_user == ID).first()
-            if login_cur != None and len(login_cur) != 0:
-                return {"flag": 1, "theme": login_cur.theme, "vision": login_cur.vision, "ID": ID}
-            else: 
-                return {"flag": 1, "ID": ID}
-        else:
-            return {"flag": 0}
-        
-
-@app.route("/problempoints", methods=['GET', 'POST'])
-def problempoints():
-    if request.method == 'POST':
-        #http://localhost:8000/problempoints?x=56.320068&y=44.000863&description=яма в асфальте&address=ННГУ
-        args = request.args
-        x = args.get('x')
-        y = args.get('y')
-        description = args.get('description')
-        address = get_name_street(x,y)
-        point = ProblemPoints()
-        point.x = x
-        point.y = y
-        point.description = description
-        point.address = str(address)
-        db_sess.add(point)
-        db_sess.commit()
-        return {"flag": 1}
-    elif request.method == 'GET':
-        login_cur = db_sess.query(ProblemPoints)
-        return {"flag": 1, "points":[{"x": i.x, "y": i.y, "address": i.address, "description": i.description} for i in login_cur]}
-    else:
-        return {"flag": 0}
-    #http://localhost:8000/problempoints
-    
-@app.route("/parking", methods=['GET', 'POST'])
-def parking():
-    #http://localhost:8000/parking
-    login_cur = db_sess.query(Parking)
-    return {"flag": 1, "points":[{"x": i.x, "y": i.y, "description": i.description} for i in login_cur]}
-
-@app.route("/adminpanel", methods=['GET', 'POST'])
-def adminpanel():
-    ID = session.get("id")
-    info = db_sess.query(User).filter(User.id == ID).first()
-    if info and info.role == 2:
-        login_cur = db_sess.query(Wait_Communities).filter(Wait_Communities.activity == 1)
-        final = [{"name":i.name, "url": i.image, "target": i.target} for i in login_cur]
-        return {"final": 1, "info": final}
-    else:
-        return {"final": 0}
-    
-@app.route("/answeradmin", methods=['GET', 'POST'])
-def answeradmin():
-    ID = session.get("id")
-    args = request.args
-    id_wait = args.get('id_wait')
-    level = db_sess.query(User).filter(User.id == ID).first()
-    
-    if request.method == 'POST'  and level and level.role == 2:
-        #http://localhost:8000/answeradmin?id_wait=1&flag=1
-        info = db_sess.query(Wait_Communities).filter(Wait_Communities.id == id_wait, Wait_Communities.activity == 1).first()
-        flag = args.get("flag")
-        if level and level.role == 2 and flag:
-
-            communiti = Communities()
-            images = Image()
-            images.url = info.image
-            db_sess.add(images)
-            db_sess.commit()
-            images = db_sess.query(Image).filter(Image.url == info.image).first()
-            communiti.id_image = images.id
-            communiti.name = info.name
-            communiti.activity = 1
-            db_sess.add(communiti)
-            db_sess.commit()
-            com = db_sess.query(Wait_Communities).filter(Wait_Communities.id == info.id).first()
-            com.activity=0
-            db_sess.commit()
-            return {"flag": 1}
-    elif request.method == 'GET' and level and level.role == 2:
-        info = db_sess.query(Wait_Communities).filter(Wait_Communities.id == id_wait, Wait_Communities.activity == 1).first()
-        if level and level.role == 2:
-            login_cur = db_sess.query(Wait_Communities).filter(Wait_Communities.activity == 1).first()
-            user = db_sess.query(User).filter(User.id == login_cur.id_user).first()
-            final = {"name": login_cur.name, "url": login_cur.image, "target": login_cur.target, "user": user.name}
-            return {"final": 1, "info": final}
-    else:
-        return {"final": 0}
+@app.before_request
+def log_request_info():
+    logger.info(f"Request: {request.method} {request.url}")
+    logger.info(f"Headers: {dict(request.headers)}")
+    logger.info(f"Content-Type: {request.content_type}")
+    if request.get_data():
+        logger.info(f"Body: {request.get_data()}")
 
 
 
 
+os.makedirs('logs', exist_ok=True)
+logging.basicConfig(
+    filename='logs/bot.log',
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(name)s %(message)s'
+)
+logger = logging.getLogger("bot")
 
-@app.route("/getpoint", methods=['GET', 'POST'])
-def getpoint():
-    #http://localhost:8000/getpoint?address=Нижний Новогод, ННГУ
-   
-    args = request.args
-    toponym_to_find = args.get('address').replace(" ", "+")
-    
-    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
-    geocoder_params = {
-    "apikey": "06ac2964-1c74-4510-ba0f-4bd4b962a22a",
-    "geocode": toponym_to_find,
-    "format": "json"}
-    response = requests.get(geocoder_api_server, params=geocoder_params).json()
-    info = str(response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["Point"]["pos"]).split()
-    x, y = info[1], info[0]
-    return {"x":x,"y":y}
+level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
+try:
+    logging.getLogger().setLevel(getattr(logging, level_name, logging.INFO))
+    logger.info(f"Log level set to {level_name}")
+except Exception:
+    logger.info("Log level fallback to INFO")
 
-
-@app.route("/getaddress", methods=['GET', 'POST'])
-def getaddress():
-    #http://localhost:8000/getaddress?x=&y=43.35186
-   
-    args = request.args
-    x = args.get('x')
-    y = args.get('y')
-    top = get_name_street(x, y)
-    return {"address": top}
-
-
-
-
-@app.route("/parkzone", methods=['GET', 'POST'])
-def parkzone():
-    info = db_sess.query(ParkZone)
-    final = {}
-    for i in info:
-        if i.id_pair not in final:
-            final[i.id_pair] = [{"x": i.x, "y":i.y, "description":i.description}]
-        else:
-            final[i.id_pair] += [{"x": i.x, "y":i.y, "description":i.description}]
-    return {"flag": 1, "point": final}
-
-
-
-@app.route("/")
+@app.route("/", methods=["GET"])
 def test_server():
-    return {"status": "200", "server": "actived"}
+    """Главная страница - отображение формы сообщения"""
+    try:
+        return render_template("message.html")
+    except Exception as e:
+        logger.error(f"Error rendering template: {str(e)}")
+        return f"Error loading template: {str(e)}", 500
+
+
+@app.route("/projects", methods=["GET"])
+def projects():
+    """Страница проектов"""
+    try:
+        return render_template("projects.html")
+    except Exception as e:
+        logger.error(f"Error rendering projects template: {str(e)}")
+        return f"Error loading template: {str(e)}", 500
+
+
+@app.route("/messages-list", methods=["GET"])
+def messages_list():
+    """Страница списка сообщений"""
+    try:
+        return render_template("messages-list.html")
+    except Exception as e:
+        logger.error(f"Error rendering messages-list template: {str(e)}")
+        return f"Error loading template: {str(e)}", 500
+
+
+@app.route("/rating", methods=["GET"])
+def rating():
+    """Страница рейтинга"""
+    try:
+        return render_template("rating.html")
+    except Exception as e:
+        logger.error(f"Error rendering rating template: {str(e)}")
+        return f"Error loading template: {str(e)}", 500
+    
+
+@app.route("/new_ticket",  methods=["POST"])
+def new_ticket():
+    data = request.get_json() if request.is_json else request.form
+    address = data.get("address")
+    message = data.get("message")
+    topic = data.get("topic")
+    email = data.get("email")
+    logger.info('New ticket')
+    new_tic = Tickets()
+    new_tic.address = address
+    new_tic.created_at = datetime.now()
+    new_tic.status = 'new'
+    new_tic.description = message
+    db_sess.add(new_tic)
+    db_sess.commit()
+    print("New tic")
+    return {"status": "200"}
+
+
+
+
 
 
 
@@ -490,9 +140,417 @@ def get_ticket_classification():
     args = request.args
     #user_text = args.get("text")
     rag_classifier(get_client())
-    return {"status": "200"}
+    return jsonify({"status": "200"})
+
+
+@app.after_request
+def after_request(response):
+    """Добавляет CORS заголовки ко всем ответам"""
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+
+@app.route("/getticket")
+def get_ticket():
+    return jsonify({"status": "200", "result": parse_jsons(get_firts_ticket())})
+
+@app.route("/getclosedticket")
+def get_closed_ticket():
+    return jsonify({"status": "200", "result": parse_jsons(get_close_tickets())})
+
+
+
+
+@app.route("/queryanalysis", methods=['POST'])
+def query_analysis():
+    # получаем данные и анализируем 
+    try:
+        data = request.get_json() if request.is_json else request.form
+        
+        if data is None:
+            data = {}
+        
+        id = data.get("id")
+        text = data.get("text")
+        creation_date = data.get("creation_date", "2025-11-22")
+        
+        if not text:
+            return jsonify({"status": "400", "error": "text parameter is required"}), 400
+        
+        result = promise_analyzer.analyze_promise(text, creation_date)
+        logger.info(f"Promise analysis result: {result}")
+        
+        if result.get("is_promise") == 1:
+            if id and result.get("deadline_date"):
+                try:
+                    planner(result["deadline_date"], id)
+                    return jsonify({
+                        "status": "200",
+                        "result": "add new plan",
+                        "analysis": result
+                    })
+                except Exception as e:
+                    logger.error(f"Error in planner: {str(e)}")
+                    return jsonify({
+                        "status": "200",
+                        "result": "analysis completed but plan not created",
+                        "error": str(e),
+                        "analysis": result
+                    })
+            else:
+                return jsonify({
+                    "status": "200",
+                    "result": "promise detected but no plan created (missing id or deadline_date)",
+                    "analysis": result
+                })
+        else:
+            return jsonify({
+                "status": "200",
+                "result": "no promise detected",
+                "analysis": result
+            })
+    except Exception as e:
+        logger.error(f"Error in query_analysis: {str(e)}")
+        return jsonify({"status": "500", "error": str(e)}), 500
+    
+
+# @app.route("/datesearch", methods=['GET', 'POST'])
+# def date_search():
+#     args = request.args
+#     text = request.form.get("text")
+#     print(text)
+#     result = promise_analyzer.analyze_promise(text)
+#     planner()
+    
+#     return result
+
+
+
+def planner(data, ticket):
+    try:
+        plan = PlanTime()
+        plan.id_ticket = ticket
+        
+        # Преобразуем строку даты в datetime объект
+        if isinstance(data, str):
+            formats = [
+                "%Y-%m-%d %H:%M:%S.%f",
+                "%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%d",
+                "%Y-%m-%dT%H:%M:%S.%f",
+                "%Y-%m-%dT%H:%M:%S"
+            ]
+            
+            check_date = None
+            for fmt in formats:
+                try:
+                    check_date = datetime.strptime(data, fmt)
+                    break
+                except ValueError:
+                    continue
+            
+            if check_date is None:
+                logger.error(f"Could not parse date in planner: {data}")
+                check_date = datetime.now()
+        else:
+            check_date = data
+        
+        plan.check_data = check_date
+        plan.end_data = datetime.strptime(
+            add_three_days_to_string(check_date.strftime("%Y-%m-%d %H:%M:%S.%f")),
+            "%Y-%m-%d %H:%M:%S.%f"
+        )
+        plan.status = "wait deadline"
+        db_sess.add(plan)
+        db_sess.commit()
+        logger.info(f"Plan created for ticket {ticket} with check_date {check_date}")
+    except Exception as e:
+        logger.error(f"Error in planner: {str(e)}")
+        raise
+
+
+@app.route("/answerexecutor", methods=["POST"]) # получают из запрсоа какой результат
+def answer_executor():
+    try:
+        answer = request.form.get("answer")
+        id_ticket = request.form.get("id")
+        
+        if not id_ticket:
+            return jsonify({"status": "400", "error": "id is required"}), 400
+        
+        if answer == "closed":
+            res = db_sess.query(PlanTime).filter(PlanTime.id_ticket == id_ticket).first()
+            if res:
+                res.status = "closed"
+                db_sess.commit()
+                # Обновляем рейтинг (повышаем, так как выполнено добросовестно)
+                rank_success = rank(1, id_ticket)
+                if rank_success:
+                    return jsonify({"status": "200", "result": "plan closed and rank updated"})
+                else:
+                    return jsonify({"status": "200", "result": "plan closed but rank update failed", "warning": "rank update failed"})
+            else:
+                return jsonify({"status": "404", "error": "plan not found"}), 404
+        else:
+            # Обновляем рейтинг (понижаем, так как срок переносится)
+            rank_success = rank(0, id_ticket)
+            if rank_success:
+                return jsonify({"status": "200", "result": "timing extended and rank updated"})
+            else:
+                return jsonify({"status": "200", "result": "timing extended but rank update failed", "warning": "rank update failed"})
+    except Exception as e:
+        logger.error(f"Error in answer_executor: {str(e)}")
+        return jsonify({"status": "500", "error": str(e)}), 500
+
+    
+
+
+
+def push():
+    pass
+
+
+
+def rank(type, id_ticket):
+    """
+    Изменяет рейтинг исполнителя в зависимости от результата выполнения заявки
+    
+    Args:
+        type: 0 - понизить рейтинг (перенос срока), 1 - повысить рейтинг (выполнено)
+        id_ticket: ID тикета
+    """
+    try:
+        # Получаем тикет
+        ticket = db_sess.query(Tickets).filter(Tickets.id == id_ticket).first()
+        if not ticket:
+            logger.error(f"Ticket with id {id_ticket} not found")
+            return False
+        
+        id_executor = ticket.executor_id
+        if not id_executor:
+            logger.error(f"Ticket {id_ticket} has no executor_id")
+            return False
+        
+        # Получаем объект рейтинга (не значение, а сам объект!)
+        rank_obj = db_sess.query(Ranks).filter(Ranks.id_executor == id_executor).first()
+        if not rank_obj:
+            logger.error(f"Rank for executor {id_executor} not found")
+            return False
+        
+        # Изменяем значение рейтинга
+        if type == 0:  # понижаем рейтинг (перенос срока)
+            rank_obj.value -= 10
+            change = -10
+            notes = f"-10 для исполнителя {id_executor} (тикет {id_ticket})"
+        else:  # повышаем рейтинг (выполнено добросовестно)
+            rank_obj.value += 10
+            change = 10
+            notes = f"+10 для исполнителя {id_executor} (тикет {id_ticket})"
+        
+        # Создаем запись в истории
+        history = HistoryRanks()
+        history.notes = notes
+        db_sess.add(history)
+        
+        # Сохраняем изменения в базе данных
+        db_sess.commit()
+        
+        logger.info(f"Rank updated for executor {id_executor}: {change} (new value: {rank_obj.value})")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error in rank function: {str(e)}")
+        db_sess.rollback()  # Откатываем изменения при ошибке
+        return False
+
+
+@app.route("/count_bureaucratic_responses", methods=["GET", "POST"])
+def count_bureaucratic_responses():
+    """
+    Подсчитывает количество запросов со сложными бюрократическими ответами
+    
+    GET: возвращает статистику по всем тикетам с resolution
+    POST: анализирует переданные тексты ответов
+    
+    Параметры для POST:
+    - texts: список текстов ответов (JSON массив) или
+    - text: один текст ответа
+    """
+    try:
+        if request.method == "POST":
+            # Анализируем переданные тексты
+            data = request.get_json() if request.is_json else request.form
+            
+            if data is None:
+                data = {}
+            
+            texts = data.get("texts", [])
+            text = data.get("text")
+            
+            # Если передан один текст, преобразуем в список
+            if text and not texts:
+                texts = [text]
+            
+            if not texts:
+                return jsonify({"status": "400", "error": "texts or text parameter is required"}), 400
+            
+            # Анализируем ответы
+            result = bureaucratic_analyzer.count_bureaucratic_responses(texts)
+            
+            return jsonify({
+                "status": "200",
+                "result": {
+                    "total": result["total"],
+                    "bureaucratic_count": result["bureaucratic_count"],
+                    "percentage": result["percentage"],
+                    "details": [
+                        {
+                            "text": texts[i][:100] + "..." if len(texts[i]) > 100 else texts[i],
+                            "is_bureaucratic": r["is_bureaucratic"],
+                            "confidence": r["confidence"],
+                            "complexity_score": r["complexity_score"],
+                            "reason": r["reason"]
+                        }
+                        for i, r in enumerate(result["results"])
+                    ]
+                }
+            })
+        else:
+            # GET: анализируем все тикеты с resolution из базы данных
+            try:
+                tickets = db_sess.query(Tickets).filter(Tickets.resolution.isnot(None)).all()
+                
+                if not tickets:
+                    return jsonify({
+                        "status": "200",
+                        "result": {
+                            "total": 0,
+                            "bureaucratic_count": 0,
+                            "percentage": 0.0,
+                            "message": "No tickets with resolution found"
+                        }
+                    })
+                
+                # Извлекаем тексты resolution
+                resolutions = [ticket.resolution for ticket in tickets if ticket.resolution]
+                
+                if not resolutions:
+                    return jsonify({
+                        "status": "200",
+                        "result": {
+                            "total": 0,
+                            "bureaucratic_count": 0,
+                            "percentage": 0.0,
+                            "message": "No valid resolutions found"
+                        }
+                    })
+                
+                # Анализируем ответы
+                result = bureaucratic_analyzer.count_bureaucratic_responses(resolutions)
+                
+                # Получаем детали по каждому тикету
+                details = []
+                for i, ticket in enumerate(tickets):
+                    if ticket.resolution:
+                        analysis = bureaucratic_analyzer.is_bureaucratic_response(ticket.resolution)
+                        details.append({
+                            "ticket_id": ticket.id,
+                            "complaint_id": ticket.complaint_id,
+                            "resolution_preview": ticket.resolution[:100] + "..." if len(ticket.resolution) > 100 else ticket.resolution,
+                            "is_bureaucratic": analysis["is_bureaucratic"],
+                            "confidence": analysis["confidence"],
+                            "complexity_score": analysis["complexity_score"],
+                            "reason": analysis["reason"]
+                        })
+                
+                return jsonify({
+                    "status": "200",
+                    "result": {
+                        "total": result["total"],
+                        "bureaucratic_count": result["bureaucratic_count"],
+                        "percentage": result["percentage"],
+                        "details": details
+                    }
+                })
+            except Exception as e:
+                logger.error(f"Error querying database: {str(e)}")
+                return jsonify({"status": "500", "error": f"Database error: {str(e)}"}), 500
+                
+    except Exception as e:
+        logger.error(f"Error in count_bureaucratic_responses: {str(e)}")
+        return jsonify({"status": "500", "error": str(e)}), 500
+
+
+@app.route("/analyze_bureaucratic_response", methods=["POST"])
+def analyze_bureaucratic_response():
+    """
+    Анализирует один ответ на предмет бюрократичности
+    
+    Параметры:
+    - text: текст ответа для анализа
+    """
+    try:
+        data = request.get_json() if request.is_json else request.form
+        
+        if data is None:
+            data = {}
+        
+        text = data.get("text")
+        
+        if not text:
+            return jsonify({"status": "400", "error": "text parameter is required"}), 400
+        
+        result = bureaucratic_analyzer.is_bureaucratic_response(text)
+        
+        return jsonify({
+            "status": "200",
+            "result": result
+        })
+    except Exception as e:
+        logger.error(f"Error in analyze_bureaucratic_response: {str(e)}")
+        return jsonify({"status": "500", "error": str(e)}), 500
+
+
+def add_three_days_to_string(date_str):
+    """Добавляет 3 дня к дате в строковом формате"""
+    try:
+        # Пробуем разные форматы даты
+        formats = [
+            "%Y-%m-%d %H:%M:%S.%f",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d",
+            "%Y-%m-%dT%H:%M:%S.%f",
+            "%Y-%m-%dT%H:%M:%S"
+        ]
+        
+        date = None
+        for fmt in formats:
+            try:
+                date = datetime.strptime(str(date_str), fmt)
+                break
+            except ValueError:
+                continue
+        
+        if date is None:
+            logger.error(f"Could not parse date: {date_str}")
+            # Возвращаем исходную дату если не удалось распарсить
+            return date_str
+        
+        new_date = date + timedelta(days=3)
+        return new_date.strftime("%Y-%m-%d %H:%M:%S.%f")
+    except Exception as e:
+        logger.error(f"Error in add_three_days_to_string: {str(e)}")
+        return date_str
+
+
+
+
+
 
 
     
 if __name__ == '__main__':
-    app.run(port=3000, host='127.0.0.1')
+    app.run(port=8000, host='127.0.0.1')
+    app.debug = True

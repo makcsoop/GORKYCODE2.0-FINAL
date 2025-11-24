@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>message</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <span class="logo-text">Smartopolis</span>
+            <button class="hamburger-menu" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <div class="header-right">
+
+            <button class="refresh-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M10 3V1M10 1L7 4M10 1L13 4M2 10C2 14.418 5.582 18 10 18C14.418 18 18 14.418 18 10M18 10V12M18 10L15 13M18 10L15 7"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+            <div>
+                <img src="img/images-no-bg-preview%20%28carve.photos%29 3.png">
+            </div>
+            <div class="header-logo">
+                <span class="header-text">Аналитический центр города</span>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-emblem"></div>
+                </div>
+                <div class="sidebar-title">
+                    <div>Аналитический центр</div>
+                    <div class="online-status">• Онлайн</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-label">Меню</div>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="projects.html" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M2 6L10 1L18 6V16C18 16.5304 17.7893 17.0391 17.4142 17.4142C17.0391 17.7893 16.5304 18 16 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V6Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M7 18V10H13V18" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>Городские проекты</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2C8.34 2 7 3.34 7 5V8.59L4.7 10.89C4.31 11.28 4 11.88 4 12.41V16C4 16.55 4.45 17 5 17H15C15.55 17 16 16.55 16 16V12.41C16 11.88 15.69 11.28 15.3 10.89L13 8.59V5C13 3.34 11.66 2 10 2Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Как изменялся город</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/rating.html" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 4H17M3 8H17M3 12H17M3 16H17" stroke="white" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <span>Мой рейтинг</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="4" width="16" height="12" rx="2" stroke="white" stroke-width="1.5" />
+                                <path d="M6 8H14M6 12H10" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>Афиша</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2C5.58 2 2 5.58 2 10C2 14.42 5.58 18 10 18C14.42 18 18 14.42 18 10C18 5.58 14.42 2 10 2Z"
+                                    stroke="white" stroke-width="1.5" />
+                                <path d="M10 6V10L13 13" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>Наш Нижний</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2C8.34 2 7 3.34 7 5V8.59L4.7 10.89C4.31 11.28 4 11.88 4 12.41V16C4 16.55 4.45 17 5 17H15C15.55 17 16 16.55 16 16V12.41C16 11.88 15.69 11.28 15.3 10.89L13 8.59V5C13 3.34 11.66 2 10 2Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M10 10V10.01" stroke="white" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            <span>ПОС</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2C8.34 2 7 3.34 7 5V8.59L4.7 10.89C4.31 11.28 4 11.88 4 12.41V16C4 16.55 4.45 17 5 17H15C15.55 17 16 16.55 16 16V12.41C16 11.88 15.69 11.28 15.3 10.89L13 8.59V5C13 3.34 11.66 2 10 2Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Медиалогия</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M1 6L10 1L19 6V14C19 14.5304 18.7893 15.0391 18.4142 15.4142C18.0391 15.7893 17.5304 16 17 16H3C2.46957 16 1.96086 15.7893 1.58579 15.4142C1.21071 15.0391 1 14.5304 1 14V6Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M6 16V10H14V16" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>Карты</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M4 4H16C16.55 4 17 4.45 17 5V15C17 15.55 16.55 16 16 16H4C3.45 16 3 15.55 3 15V5C3 4.45 3.45 4 4 4Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M7 8H13M7 11H13M7 14H10" stroke="white" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <span>Новости</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2L12.09 7.26L18 8.27L14 12.14L14.91 18.02L10 15.77L5.09 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Инициативы</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 4H17M3 8H17M3 12H17M3 16H17" stroke="white" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <span>Голосования</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2C8.34 2 7 3.34 7 5V8.59L4.7 10.89C4.31 11.28 4 11.88 4 12.41V16C4 16.55 4.45 17 5 17H15C15.55 17 16 16.55 16 16V12.41C16 11.88 15.69 11.28 15.3 10.89L13 8.59V5C13 3.34 11.66 2 10 2Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Все комментарии</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z"
+                                    stroke="white" stroke-width="1.5" />
+                                <path
+                                    d="M10 2L12.09 7.26L18 8.27L14 12.14L14.91 18.02L10 15.77L5.09 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Настройки</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 4H17M3 8H17M3 12H17M3 16H17" stroke="white" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <span>Справочники</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 4H18V16H2V4Z" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M2 6L10 11L18 6" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>Статистика</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 4H18V16H2V4Z" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M2 6L10 11L18 6" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>Обратная связь</span>
+                            <svg class="nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4.5 3L7.5 6L4.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 2L12.09 7.26L18 8.27L14 12.14L14.91 18.02L10 15.77L5.09 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Социальная поддержка</span>
+                            <svg class="nav-arrow nav-arrow-down" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 4.5L6 7.5L9 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Сообщения Показать</h1>
+            </div>
+
+            <div class="message-card">
+                <div class="message-card-header">
+                    <h2 class="message-card-title">Карточка сообщения</h2>
+                    <div class="message-id-field">
+                        <label>Id</label>
+                        <input type="text" value="170512" readonly>
+                    </div>
+                </div>
+
+
+
+                <div class="tabs">
+                    <button class="tab active" data-tab="details">Подробно</button>
+                    <button class="tab" data-tab="address">Обработка</button>
+                    <button class="tab" data-tab="comments">Комментарии (0)</button>
+                    <button class="tab" data-tab="history">История изменений</button>
+                </div>
+
+                <div class="tab-content active" id="details">
+                    <div class="message-section">
+                        <div class="sliv">
+                            <h3 class="section-title">Сообщение</h3>
+                            <div class="message-actions">
+                                <button class="btn btn-green">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                        <path d="M10 12L6 8L10 4" stroke="white" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    Вернуться к фильтрам
+                                </button>
+                                <a href="messages-list.html" class="btn btn-white">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                        <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    Список
+                                </a>
+                                <button class="btn btn-blue">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                        <path
+                                            d="M11.3333 2.00001C11.5084 1.82491 11.7163 1.68601 11.9447 1.5913C12.1731 1.49659 12.4173 1.44824 12.6667 1.44824C12.916 1.44824 13.1602 1.49659 13.3886 1.5913C13.617 1.68601 13.8249 1.82491 14 2.00001C14.1751 2.1751 14.314 2.383 14.4087 2.61143C14.5034 2.83986 14.5518 3.08405 14.5518 3.33334C14.5518 3.58263 14.5034 3.82682 14.4087 4.05525C14.314 4.28368 14.1751 4.49158 14 4.66668L5.00001 13.6667L1.33334 14.6667L2.33334 11L11.3333 2.00001Z"
+                                            stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    Редактировать
+                                </button>
+                            </div>
+                        </div>
+                        <form class="message-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>#</label>
+                                    <input type="text" value="170512">
+                                </div>
+                                <div class="form-group">
+                                    <label>Заголовок</label>
+                                    <input type="text" value="Другое">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Описание</label>
+                                <textarea rows="4" placeholder="Описание заявки" id="text">По адресу улица Мечникова д 39 [КВАРТИРА]. 
+Холодный радиатор на кухне не однократно подавались заявки в ЖЭУ Московского района результата нет. 
+Прошу решить вопрос в положительную сторону. Прошу о замене радиатора так как это повторяется каждый отопительный сезон.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Тип проблемы</label>
+                                <input type="text" value="Другое">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>ЕСИА</label>
+                                    <input type="text" value="нет">
+                                </div>
+                                <div class="form-group">
+                                    <label>Автор</label>
+                                    <input type="text" value="Руслан Иванов Иванович">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Email автора</label>
+                                <input type="email" value="makc.roslov@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Телефон автора</label>
+                                <input type="tel" value="+79875407693">
+                            </div>
+                            <div class="form-group">
+                                <label>Адрес автора</label>
+                                <input type="text" value="Г.Нижний Новгород, пр. Гагагрин, д.23">
+                            </div>
+                            <div class="form-group">
+                                <label>Дата создания</label>
+                                <input type="text" value="2025-11-21 14:33:49">
+                            </div>
+                            <div class="form-group">
+                                <label>Срок исполнения в нашей системе</label>
+                                <input type="text" value="2025-11-28 00:00:00">
+                            </div>
+                            <div class="form-group">
+                                <label>Истекает через, дней</label>
+                                <input type="text" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Внешняя система</label>
+                                <input type="text" value="Лобачевский">
+                            </div>
+                            <div class="form-group">
+                                <label>Статус</label>
+                                <input type="text" value="Открыта">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" disabled> Видно всем
+                                </label>
+                            </div>
+                        </form>
+                        <br>
+                        <button class="btn btn-green" id="new_ipol">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                <path
+                                    d="M11.3333 2.00001C11.5084 1.82491 11.7163 1.68601 11.9447 1.5913C12.1731 1.49659 12.4173 1.44824 12.6667 1.44824C12.916 1.44824 13.1602 1.49659 13.3886 1.5913C13.617 1.68601 13.8249 1.82491 14 2.00001C14.1751 2.1751 14.314 2.383 14.4087 2.61143C14.5034 2.83986 14.5518 3.08405 14.5518 3.33334C14.5518 3.58263 14.5034 3.82682 14.4087 4.05525C14.314 4.28368 14.1751 4.49158 14 4.66668L5.00001 13.6667L1.33334 14.6667L2.33334 11L11.3333 2.00001Z"
+                                    stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            Назначить исполнителя
+                        </button>
+                    </div>
+                </div>
+                <!-- Обработка-->
+                <div class="tab-content" id="address">
+                    <div class="tab-placeholder">
+                        <h2 class="section-title">Действие с сообщением</h2>
+                        <form class="message-form" id="message-form">
+                            <div class="form-group">
+                                <label>Предположительные сроки выполнения</label>
+                                <input type="text" value="24.08.2025" id="pred_date">
+                            </div>
+                            <div class="form-group">
+                                <label>Что сделано</label>
+                                <input type="text" value="" id="answer" name="answer"> <!-- добавил name -->
+                            </div>
+                            <div class="form-group">
+                                <label>Изображения(стало)</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="file-upload" class="file-input" hidden name="images"> <!-- добавил name -->
+                                    <label for="file-upload" class="file-upload-btn">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right: 8px;">
+                                            <path d="M14 10v2.667A1.333 1.333 0 0 1 12.667 14H3.333A1.333 1.333 0 0 1 2 12.667V10M11.333 5.333 8 2m0 0L4.667 5.333M8 2v8"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        Выбрать файл
+                                    </label>
+                                    <span class="file-name">Файл не выбран</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-green" style="width: 180px;" id="ok-submit-btn" type="submit">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                    <path d="M13.3333 4L6 11.3333L2.66667 8" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                Заявка выполнена
+                            </button>
+                            <div class="form-group">
+                                <label>Причина возврата</label>
+                                <textarea rows="4" name="return_reason">Описание заявки...</textarea> <!-- добавил name -->
+                            </div>
+                            <div class="form-group">
+                                <label>Срок исполнения в нашей(Нет возможности выполнить)</label>
+                                <input type="text" value="" name="new_deadline"> <!-- изменил type и добавил name -->
+                            </div>
+                            <button class="btn btn-red" style="width: 180px;" id="not-submit-btn" type="button"> <!-- добавил type="button" -->
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                    <path d="M12 4L4 12M4 4L12 12" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                Отложить решение
+                            </button>
+                            <h3>Если вы отложите решение, у вас упадет рейтинг(-10)</h3>
+                        </form>
+
+                </div>
+            </div>
+
+            <div class="tab-content" id="comments">
+                <div class="tab-placeholder">
+                    <p>Содержимое вкладки "Комментарии"</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="comments">
+                <div class="tab-placeholder">
+                    <p> Содержимое </p>
+                </div>
+            </div>
+
+
+            <div class="tab-content" id="history">
+                <div class="tab-placeholder">
+                    <p>Содержимое вкладки "История изменений"</p>
+                </div>
+            </div>
+    </div>
+    </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список тикетов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .tickets-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .ticket-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .ticket-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .status-new {
+            border-left: 4px solid #28a745;
+        }
+        .status-in-progress {
+            border-left: 4px solid #ffc107;
+        }
+        .status-closed {
+            border-left: 4px solid #6c757d;
+        }
+        .badge-status {
+            font-size: 0.8em;
+        }
+        .loading-spinner {
+            display: none;
+        }
+        .ticket-description {
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        .ticket-description.expanded {
+            max-height: none;
+        }
+        .read-more {
+            color: #007bff;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="tickets-container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">Список тикетов</h2>
+                        <div>
+                            <button class="btn btn-primary me-2" onclick="loadTickets()" id="refreshBtn">
+                                <i class="fas fa-sync-alt"></i> Обновить
+                            </button>
+                            <a href="/creat_ticket.html" class="btn btn-outline-primary">
+                                <i class="fas fa-plus"></i> Новый тикет
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Фильтры -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <select class="form-select" id="statusFilter" onchange="filterTickets()">
+                                <option value="all">Все статусы</option>
+                                <option value="new">Новые</option>
+                                <option value="in-progress">В работе</option>
+                                <option value="closed">Закрытые</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Поиск по адресу или описанию..." onkeyup="filterTickets()">
+                        </div>
+                    </div>
+
+                    <!-- Спиннер загрузки -->
+                    <div class="text-center loading-spinner" id="loadingSpinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                        <p class="mt-2">Загрузка тикетов...</p>
+                    </div>
+
+                    <!-- Сообщение об отсутствии тикетов -->
+                    <div class="alert alert-info text-center" id="noTicketsMessage" style="display: none;">
+                        <i class="fas fa-info-circle"></i> Тикеты не найдены
+                    </div>
+
+                    <!-- Контейнер для тикетов -->
+                    <div id="ticketsList"></div>
+
+                    <!-- Статистика -->
+                    <div class="mt-4 p-3 bg-light rounded" id="statsContainer">
+                        <small class="text-muted">
+                            <i class="fas fa-chart-bar"></i> 
+                            Всего: <span id="totalTickets">0</span> | 
+                            Новые: <span id="newTickets">0</span> | 
+                            В работе: <span id="inProgressTickets">0</span> | 
+                            Закрытые: <span id="closedTickets">0</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allTickets = [];
+        let isLoading = false;
+
+        // Загрузка тикетов при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Страница загружена, начинаем загрузку тикетов...');
+            loadTickets();
+        });
+
+        // Функция загрузки тикетов
+        async function loadTickets() {
+            // Защита от множественных одновременных запросов
+            if (isLoading) {
+                console.log('Запрос уже выполняется, пропускаем...');
+                return;
+            }
+
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const ticketsList = document.getElementById('ticketsList');
+            const noTicketsMessage = document.getElementById('noTicketsMessage');
+            const refreshBtn = document.getElementById('refreshBtn');
+
+            // Блокируем кнопку и устанавливаем флаг загрузки
+            isLoading = true;
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Загрузка...';
+
+            // Показываем спиннер
+            loadingSpinner.style.display = 'block';
+            ticketsList.innerHTML = '';
+            noTicketsMessage.style.display = 'none';
+
+            try {
+                console.log('Отправляем запрос к API...');
+                
+                // Запрашиваем данные с API
+                const response = await fetch('http://localhost:8000/getticket');
+                
+                console.log('Получен ответ:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Данные получены:', data);
+                
+                if (data.status === '200' && data.result) {
+                    allTickets = Array.isArray(data.result) ? data.result : [data.result];
+                    console.log(`Загружено ${allTickets.length} тикетов`);
+                    displayTickets(allTickets);
+                    updateStats(allTickets);
+                } else {
+                    throw new Error('Invalid response format: ' + JSON.stringify(data));
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке тикетов:', error);
+                ticketsList.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Ошибка при загрузке тикетов: ${error.message}
+                    </div>
+                `;
+            } finally {
+                // Снимаем блокировку независимо от результата
+                loadingSpinner.style.display = 'none';
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Обновить';
+                isLoading = false;
+                console.log('Загрузка завершена');
+            }
+        }
+
+        // Функция отображения тикетов
+        function displayTickets(tickets) {
+            const ticketsList = document.getElementById('ticketsList');
+            const noTicketsMessage = document.getElementById('noTicketsMessage');
+
+            if (tickets.length === 0) {
+                noTicketsMessage.style.display = 'block';
+                ticketsList.innerHTML = '';
+                return;
+            }
+
+            noTicketsMessage.style.display = 'none';
+
+            const ticketsHTML = tickets.map(ticket => `
+                <div class="ticket-card status-${getStatusClass(ticket.status)}" data-status="${ticket.status}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="card-title">
+                                <span class="badge bg-${getStatusBadgeColor(ticket.status)} badge-status">
+                                    ${getStatusText(ticket.status)}
+                                </span>
+                                ${escapeHtml(ticket.address || 'Без адреса')}
+                            </h5>
+                            <p class="text-muted mb-2">
+                                <i class="far fa-calendar"></i> 
+                                ${formatDate(ticket.created_at)}
+                            </p>
+                            <div class="ticket-description" id="desc-${ticket.id}">
+                                ${escapeHtml(ticket.description || 'Описание отсутствует')}
+                            </div>
+                            ${ticket.description && ticket.description.length > 150 ? `
+                                <span class="read-more" onclick="toggleDescription(${ticket.id})">
+                                    Читать дальше...
+                                </span>
+                            ` : ''}
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <small class="text-muted">ID: ${ticket.id || 'N/A'}</small>
+                            ${ticket.topic ? `
+                                <div class="mt-2">
+                                    <span class="badge bg-secondary">${escapeHtml(ticket.topic)}</span>
+                                </div>
+                            ` : ''}
+                            ${ticket.email ? `
+                                <div class="mt-2">
+                                    <small><i class="fas fa-envelope"></i> ${escapeHtml(ticket.email)}</small>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            ticketsList.innerHTML = ticketsHTML;
+        }
+
+        // Функция фильтрации тикетов
+        function filterTickets() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            let filteredTickets = allTickets;
+
+            // Фильтрация по статусу
+            if (statusFilter !== 'all') {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.status === statusFilter
+                );
+            }
+
+            // Фильтрация по поисковому запросу
+            if (searchTerm) {
+                filteredTickets = filteredTickets.filter(ticket =>
+                    (ticket.address && ticket.address.toLowerCase().includes(searchTerm)) ||
+                    (ticket.description && ticket.description.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            displayTickets(filteredTickets);
+            updateStats(filteredTickets);
+        }
+
+        // Функция обновления статистики
+        function updateStats(tickets) {
+            document.getElementById('totalTickets').textContent = tickets.length;
+            document.getElementById('newTickets').textContent = tickets.filter(t => t.status === 'new').length;
+            document.getElementById('inProgressTickets').textContent = tickets.filter(t => t.status === 'in-progress').length;
+            document.getElementById('closedTickets').textContent = tickets.filter(t => t.status === 'closed').length;
+        }
+
+        // Вспомогательные функции
+        function getStatusClass(status) {
+            const statusMap = {
+                'new': 'new',
+                'in-progress': 'in-progress',
+                'closed': 'closed'
+            };
+            return statusMap[status] || 'new';
+        }
+
+        function getStatusBadgeColor(status) {
+            const colorMap = {
+                'new': 'success',
+                'in-progress': 'warning',
+                'closed': 'secondary'
+            };
+            return colorMap[status] || 'secondary';
+        }
+
+        function getStatusText(status) {
+            const textMap = {
+                'new': 'Новый',
+                'in-progress': 'В работе',
+                'closed': 'Закрыт'
+            };
+            return textMap[status] || status;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Дата не указана';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString('ru-RU');
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        function toggleDescription(ticketId) {
+            const descElement = document.getElementById(`desc-${ticketId}`);
+            const readMoreElement = descElement.nextElementSibling;
+            
+            if (descElement.classList.contains('expanded')) {
+                descElement.classList.remove('expanded');
+                if (readMoreElement) {
+                    readMoreElement.textContent = 'Читать дальше...';
+                }
+            } else {
+                descElement.classList.add('expanded');
+                if (readMoreElement) {
+                    readMoreElement.textContent = 'Свернуть';
+                }
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Защита от случайных кликов
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.getAttribute('href') === '#') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
